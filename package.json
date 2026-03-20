@@ -1,0 +1,27 @@
+{
+  "name": "pkg-risk",
+  "version": "1.0.0",
+  "description": "Analyzes installed packages in your project and displays a grouped list by: DEPRECATED, MAJOR, MINOR, PATCH and UP TO DATE. Where MAJOR is high update risk, MINOR is medium risk and PATCH is low risk. This helps identify potential issues and gives confidence when updating packages in a project.",
+  "keywords": [
+    "cli",
+    "npm",
+    "dependencies",
+    "deprecated",
+    "packages",
+    "audit",
+    "risk",
+    "update",
+    "semver",
+    "outdated"
+  ],
+  "license": "MIT",
+  "author": "Jondeldev",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "pkg-risk":  "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
