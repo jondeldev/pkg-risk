@@ -13,6 +13,11 @@ export async function check() {
         return;
     }
 
+    const pkgGroups = await getPackageGroups();
+    printResult(pkgGroups);
+}
+
+export async function getPackageGroups() {
     let pathToPackageLock = join(cwd(), PACKAGE_LOCK_JSON);
     let packageJson = JSON.parse(await promises.readFile(pathToPackageLock, { encoding: "utf-8" }));
     let installedPackages = Object.keys(packageJson.packages).filter((pckg) => pckg !== "")
@@ -35,31 +40,30 @@ export async function check() {
                 localVersion: installedPackages[i].localVersion,
                 ltsVersion: dataResult[i]["dist-tags"].latest,
                 message: ""
-            }
+            };
             if (dataResult[i].versions[localVersion].deprecated) {
                 pkgInfo.message = dataResult[i].versions[localVersion].deprecated;
                 pkgGroups.deprecated.push(pkgInfo);
 
             } else {
                 switch (compareVersions(localVersion, dataResult[i]["dist-tags"].latest)) {
-                    case "MAJOR":   // HIGH RISK
+                    case "MAJOR": // HIGH RISK
                         pkgGroups.major.push(pkgInfo);
                         break;
-                    case "MINOR":   // MEDIUM RISK
+                    case "MINOR": // MEDIUM RISK
                         pkgGroups.minor.push(pkgInfo);
                         break;
-                    case "PATCH":   // LOW RISK
+                    case "PATCH": // LOW RISK
                         pkgGroups.patch.push(pkgInfo);
                         break;
-                    default:        // UP TO DATE
+                    default: // UP TO DATE
                         pkgGroups.upToDate.push(pkgInfo);
                         break;
                 }
             }
         }
     }
-
-    printResult(pkgGroups);
+    return pkgGroups;
 }
 
 function printResult(groups) {
