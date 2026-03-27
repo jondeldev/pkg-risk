@@ -19,9 +19,12 @@
   "type": "module",
   "main": "index.js",
   "bin": {
-    "pkg-risk":  "./index.js"
+    "pkg-risk": "./index.js"
   },
   "scripts": {
     "test": "node ./test/test.js"
+  },
+  "dependencies": {
+    "cli-table3": "^0.6.5"
   }
 }

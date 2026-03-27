@@ -4,6 +4,7 @@ import { promises } from "node:fs";
 import { compareVersions, getPackageData } from "./utils.js";
 import { PACKAGE_LOCK_JSON } from "./const.js";
 import { ensure } from "./ensure.js";
+import CliTable3 from "cli-table3";
 
 export async function check() {
     try {
@@ -67,32 +68,36 @@ export async function getPackageGroups() {
 }
 
 function printResult(groups) {
-    console.info("--- DEPRECATED ---");
-    groups.deprecated.forEach((val) => {
-        console.info(`\x1b[31m${val.name}\x1b[0m | ${val.localVersion} / ${val.ltsVersion}`);
-        console.info(`\x1b[31m${val.message}\x1b[0m`);
-    });
+    let table = new CliTable3({ head: ["Semver", "Name", "Local Version", "LTS Version", "Comment"], colWidths: [12, 20, 10, 10, 50], style: { 'padding-left': 0, 'padding-right': 0, head: [], border: [] }, wordWrap: true });
+    if (groups.deprecated) {
+        groups.deprecated.forEach((val) => {
+            table.push([`\x1b[31mDEPRECATED\x1b[0m`, val.name, val.localVersion, val.ltsVersion, val.message]);
+        });
+    }
 
-    console.info("\n--- MAJOR ---");
-    groups.major.forEach((val) => {
-        console.info(`\x1b[31m${val.name}\x1b[0m | ${val.localVersion} / ${val.ltsVersion}`);
-    });
+    if (groups.major) {
+        groups.major.forEach((val) => {
+            table.push([`\x1b[31mMAJOR\x1b[0m`, val.name, val.localVersion, val.ltsVersion, "\x1b[31mHIGH RISK\x1b[0m"]);
+        });
+    }
 
-    console.info("\n--- MINOR ---");
-    groups.minor.forEach((val) => {
-        console.info(`\x1b[33m${val.name}\x1b[0m | ${val.localVersion} / ${val.ltsVersion}`);
-    });
+    if (groups.minor) {
+        groups.minor.forEach((val) => {
+            table.push([`\x1b[33mMINOR\x1b[0m`, val.name, val.localVersion, val.ltsVersion, "\x1b[33mMEDIUM RISK\x1b[0m"]);
+        });
+    }
 
-    console.info("\n--- PATCH ---");
-    groups.patch.forEach((val) => {
-        console.info(`\x1b[32m${val.name}\x1b[0m | ${val.localVersion} / ${val.ltsVersion}`);
-    });
+    if (groups.patch) {
+        groups.patch.forEach((val) => {
+            table.push([`\x1b[32mPATCH\x1b[0m`, val.name, val.localVersion, val.ltsVersion, "\x1b[32mLOW RISK\x1b[0m"]);
+        });
+    }
 
-    console.info("\n--- UP TO DATE ---");
-    groups.upToDate.forEach((val) => {
-        console.info(`\x1b[34m${val.name}\x1b[0m | ${val.localVersion} / ${val.ltsVersion}`);
-    });
-
-    console.info("\n--- RESUME ---");
+    if (groups.upToDate) {
+        groups.upToDate.forEach((val) => {
+            table.push([`\x1b[34mUP TO DATE\x1b[0m`, val.name, val.localVersion, val.ltsVersion, "\x1b[34mNO ACTION NEEDED\x1b[0m"]);
+        });   
+    }
+    console.info(table.toString());
     console.info(`\x1b[31m${groups.deprecated.length}\x1b[0m deprecated | \x1b[31m${groups.major.length}\x1b[0m major | \x1b[33m${groups.minor.length}\x1b[0m minor | \x1b[32m${groups.patch.length}\x1b[0m patch | \x1b[34m${groups.upToDate.length}\x1b[0m up to date`);
 }
